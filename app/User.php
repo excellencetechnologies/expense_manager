@@ -2,10 +2,16 @@
 
 namespace App;
 
+use DB;
+use Validator;
+use Exception;
+use JWTAuth;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
 
@@ -15,7 +21,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'balance', 'apiToken'
     ];
 
     /**
@@ -24,6 +30,66 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'created_at', 'updated_at'
     ];
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    // Sign Up
+    public function signup($data)
+    {
+        $validator = Validator::make($data, [
+            'name' => 'required|min:3|max:50',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:6',
+            'balance' => 'required|numeric'
+        ]);
+
+        if( $validator->fails() ){
+            return response()->json(['error' => $validator->errors()]);
+        }
+
+        $isUserExists = DB::table('users')->select('email')->where('email', $data['email'])->count();
+
+        if( $isUserExists > 0 ){
+            throw new Exception('User already exists.');
+        }
+
+        $this->name = $data['name'];
+        $this->email = $data['email'];
+        $this->password = bcrypt($data['password']);
+        $this->balance = $data['balance'];
+        $this->apiToken = str_random(60);
+        $this->save();
+        
+        $token = auth()->login($this);
+
+        return $this->respondWithToken($token);
+    }
+
+    public function login($credentials)
+    {
+        if ( !$token = JWTAuth::attempt($credentials) ) {
+            throw new Exception('Unauthorized Token.');
+        }
+        return $this->respondWithToken($token);
+    }
+
+    public function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type'   => 'bearer',
+            'expires_in'   => auth()->factory()->getTTL() * 60
+        ]);
+    }
+
 }
