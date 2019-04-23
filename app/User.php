@@ -43,7 +43,7 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    // Sign Up
+    // Create Account
     public function signup($data)
     {
         $validator = Validator::make($data, [
@@ -75,6 +75,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->respondWithToken($token);
     }
 
+    // User Login
     public function login($credentials)
     {
         if ( !$token = JWTAuth::attempt($credentials) ) {

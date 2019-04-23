@@ -7,7 +7,8 @@ use Exception;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
-{    
+{
+    // Create Account
     public function signup()
     {
         try {
@@ -23,6 +24,7 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    // User Login
     public function login()
     {
         try{

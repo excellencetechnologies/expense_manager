@@ -16,3 +16,15 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Create Account
+Route::post('/signup', 'UserController@signup');
+
+// User Login
+Route::post('/login', 'UserController@login');
+
+// Add User Income
+Route::post('/addIncome', 'IncomeExpenseController@addIncome');
+
+// Add User Expense
+Route::post('/addExpense', 'IncomeExpenseController@addExpense');
