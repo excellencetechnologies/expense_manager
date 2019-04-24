@@ -74,4 +74,44 @@ class IncomeExpense extends Model
         
         return $user;
     }
+
+    public function getReport($data)
+    {
+        $validator = Validator::make($data, [
+            'month' => 'numeric',
+            'year' => 'numeric',
+        ]);
+
+        if( $validator->fails() ){
+            return response()->json(['error' => $validator->errors()]);
+        }
+
+        if( !Auth::check() ){
+            throw new Exception("Invalid Token");
+        }
+
+        $userid = Auth::id();
+        $month = isset($data['month']) ? $data['month'] : null;
+        $year = isset($data['year']) ? $data['year'] : null;
+
+        if( $year ){
+            if( $month ){
+                $report = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->get();
+
+            } else {
+                $report = $this::find($userid)->whereYear('created_at', $year)->get();
+            }
+
+        } else {
+            if( $month ){
+                $validator = Validator::make($data, [ 'year' => 'required' ]);                
+                if( $validator->fails() ){ return response()->json(['error' => $validator->errors()]); }
+
+            } else {
+                $report = $this::find($userid)->get();
+            }
+        }
+
+        return $report;
+    }
 }
