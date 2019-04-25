@@ -39,5 +39,34 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function getUser()
+    {
+        try {
+            $user = new User();
+            $user = $user->getUser();
+            $response = [ 'error' => 0, 'data' => $user ];
+
+        } catch( Exception $ex ) {
+            $response = [ 'error' => 1, 'message' => $ex->getMessage() ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function updateUser()
+    {
+        try {
+            $data = request()->all();
+            $user = new User();
+            $user = $user->updateUser($data);
+            $response = [ 'error' => 0, 'data' => $user ];
+
+        } catch( Exception $ex ) {
+            $response = [ 'error' => 1, 'message' => $ex->getMessage() ];
+        }
+
+        return response()->json($response);
+    }
     
 }

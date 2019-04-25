@@ -84,6 +84,45 @@ class User extends Authenticatable implements JWTSubject
         return $this->respondWithToken($token);
     }
 
+    public function getUser()
+    {
+        if( !JWTAuth::parseToken()->authenticate() ){
+            throw new Exception('Invalid Token');
+        }
+        
+        $userid = Auth::id();
+        $userInfo = $this->find($userid);
+
+        return $userInfo;
+    }
+
+    public function updateUser($data)
+    {
+        $validator = Validator::make($data, [
+            'name' => 'required|min:3|max:50',
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+            'balance' => 'required|numeric'
+        ]);
+
+        if( $validator->fails() ){
+            return response()->json(['error' => $validator->errors()]);
+        }
+
+        if( !Auth::check() ){
+            throw new Exception('Invalid Token');
+        }
+
+        $user = $this->find(Auth::id());
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = bcrypt($data['password']);
+        $user->balance = $data['balance'];
+        $user->save();
+
+        return $user;
+    }
+
     public function respondWithToken($token)
     {
         return response()->json([

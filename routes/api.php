@@ -23,6 +23,12 @@ Route::post('/signup', 'UserController@signup');
 // User Login
 Route::post('/login', 'UserController@login');
 
+// Get User Info
+Route::get('/getUser', 'UserController@getUser');
+
+// Update User Info
+Route::put('/update', 'UserController@updateUser');
+
 // Add User Income
 Route::post('/addIncome', 'IncomeExpenseController@addIncome');
 
