@@ -36,4 +36,4 @@ Route::post('/addIncome', 'IncomeExpenseController@addIncome');
 Route::post('/addExpense', 'IncomeExpenseController@addExpense');
 
 // Get Expense Report
-Route::post('/report', 'IncomeExpenseController@getReport');
+Route::get('/report', 'IncomeExpenseController@getReport');
