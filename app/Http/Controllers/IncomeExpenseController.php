@@ -37,4 +37,19 @@ class IncomeExpenseController extends Controller
 
         return response()->json($response);
     }
+
+    public function getReport()
+    {
+        try {
+            $data = request()->all();
+            $incomeExpense = new IncomeExpense();
+            $report = $incomeExpense->getReport($data);
+            $response = [ 'error' => 0, 'data' => $report ];
+
+        } catch( Exception $ex ) {
+            $response = [ 'error' => 1, 'message' => $ex->getMessage() ];
+        }
+
+        return response()->json($response);
+    }
 }

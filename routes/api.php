@@ -28,3 +28,6 @@ Route::post('/addIncome', 'IncomeExpenseController@addIncome');
 
 // Add User Expense
 Route::post('/addExpense', 'IncomeExpenseController@addExpense');
+
+// Get Expense Report
+Route::post('/report', 'IncomeExpenseController@getReport');
