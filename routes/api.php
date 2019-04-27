@@ -37,3 +37,6 @@ Route::post('/addExpense', 'IncomeExpenseController@addExpense');
 
 // Get Expense Report
 Route::get('/report', 'IncomeExpenseController@getReport');
+
+// Add Categories
+Route::post('/addCategories', 'CategoriesController@addCategories');
