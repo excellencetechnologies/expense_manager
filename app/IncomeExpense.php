@@ -158,12 +158,12 @@ class IncomeExpense extends Model
 
         if( $year ){
             if( $month ){
-                $expenseArray = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->whereNotNull('expense')->get()->toArray();
-                $incomeArray = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->whereNotNull('income')->get()->toArray();                                
+                $expesne = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->whereNotNull('expense')->avg('expense');
+                $income = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->whereNotNull('income')->avg('income');
                 
             } else {
-                $expenseArray = $this::find($userid)->whereYear('created_at', $year)->whereNotNull('expense')->get()->toArray();
-                $incomeArray = $this::find($userid)->whereYear('created_at', $year)->whereNotNull('income')->get()->toArray();
+                $expesne = $this::find($userid)->whereYear('created_at', $year)->whereNotNull('expense')->avg('expense');
+                $income = $this::find($userid)->whereYear('created_at', $year)->whereNotNull('income')->avg('income');
             }
 
         } else {
@@ -172,24 +172,16 @@ class IncomeExpense extends Model
                 if( $validator->fails() ){ return response()->json(['error' => $validator->errors()]); }
 
             } else {
-                $expenseArray = $this::find($userid)->whereNotNull('expense')->get()->toArray();
-                $incomeArray = $this::find($userid)->whereNotNull('income')->get()->toArray();
+                $expesne = $this::find($userid)->whereNotNull('expense')->avg('expense');
+                $income = $this::find($userid)->whereNotNull('income')->avg('income');
             }
         }
 
-        $expense = array_map(function($iter){
-            return $iter['expense'];
-        }, $expenseArray);
-        $income = array_map(function($iter){
-            return $iter['income'];
-        }, $incomeArray);
-        $average_income = count($income) > 0 ? array_sum($income) / count($income) : null;
-        $average_expesne = count($expense) ? array_sum($expense) / count($expense) : null;
         $average_report = [
             'month' => $month,
             'year' => $year,
-            'average_income' => $average_income,
-            'average_expesne' => $average_expesne
+            'average_income' => $income,
+            'average_expesne' => $expesne
         ];         
         
         return $average_report;
