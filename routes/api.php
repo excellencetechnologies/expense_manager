@@ -38,8 +38,13 @@ Route::post('/addExpense', 'IncomeExpenseController@addExpense');
 // Get Expense Report
 Route::get('/report', 'IncomeExpenseController@getReport');
 
+<<<<<<< HEAD
 // Get Average Expense Report
 Route::get('/average_expesne_report', 'IncomeExpenseController@getAverageIncomeExpenseReport');
 
 // Get Average Expense Report
 Route::post('/addCategory', 'CategoriesController@addCategory');
+=======
+// Add Categories
+Route::post('/addCategories', 'CategoriesController@addCategories');
+>>>>>>> ea6e603823d27ed5cafa2386bdf31a96aaa97870
