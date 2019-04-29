@@ -83,15 +83,19 @@ class IncomeExpense extends Model
         $userid = Auth::id();
         $user = User::find($userid);
 
+        $expense = $data['expense'];
+        $categories = json_encode($data['categories']);
+        
         $this->user_id = $userid;
-        $this->expense = $data['expense'];
-        $this->balance = $user->balance - $data['expense'];
+        $this->expense = $expense;
+        $this->balance = $user->balance - $expense;
+        $this->categories = $categories;
         $this->save();
 
-        $user->balance = $user->balance - $data['expense'];
+        $user->balance = $user->balance - $expense;
         $user->save();
 
-        $user = array_merge($user->getOriginal(), $this->getOriginal());
+        $user = array_merge($user->toArray(), $this->toArray());
         
         return $user;
     }
