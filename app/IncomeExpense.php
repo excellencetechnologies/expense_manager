@@ -6,6 +6,7 @@ use DB;
 use App\User;
 use Validator;
 use Exception;
+use App\Categories;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
@@ -158,16 +159,28 @@ class IncomeExpense extends Model
         $userid = Auth::id();
         $month = isset($data['month']) ? $data['month'] : null;
         $year = isset($data['year']) ? $data['year'] : null;
-        $expenseArray = $incomeArray = $expense = $income = [];
+        $expense = $income = $categories = [];
+        $allCategories = array_map(function($item){
+            return $item['name'];
+        }, Categories::all()->toArray());
+
 
         if( $year ){
             if( $month ){
-                $expesne = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->whereNotNull('expense')->avg('expense');
+                $expense = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->whereNotNull('expense')->avg('expense');
                 $income = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->whereNotNull('income')->avg('income');
+                foreach( $allCategories as $category ){
+                    $category_average = $this::find($userid)->whereMonth('created_at', $month)->whereYear('created_at', $year)->whereNotNull('expense')->whereNotNull($category)->avg($category);
+                    $categories[$category] = isset($category_average) ? $category_average : null;
+                }
                 
             } else {
-                $expesne = $this::find($userid)->whereYear('created_at', $year)->whereNotNull('expense')->avg('expense');
+                $expense = $this::find($userid)->whereYear('created_at', $year)->whereNotNull('expense')->avg('expense');
                 $income = $this::find($userid)->whereYear('created_at', $year)->whereNotNull('income')->avg('income');
+                foreach( $allCategories as $category ){
+                    $category_average = $this::find($userid)->whereYear('created_at', $year)->whereNotNull('expense')->whereNotNull($category)->avg($category);
+                    $categories[$category] = isset($category_average) ? $category_average : null;
+                }
             }
 
         } else {
@@ -176,8 +189,12 @@ class IncomeExpense extends Model
                 if( $validator->fails() ){ return response()->json(['error' => $validator->errors()]); }
 
             } else {
-                $expesne = $this::find($userid)->whereNotNull('expense')->avg('expense');
+                $expense = $this::find($userid)->whereNotNull('expense')->avg('expense');
                 $income = $this::find($userid)->whereNotNull('income')->avg('income');
+                foreach( $allCategories as $category ){
+                    $category_average = $this::find($userid)->whereNotNull('expense')->whereNotNull($category)->avg($category);
+                    $categories[$category] = isset($category_average) ? $category_average : null;
+                }
             }
         }
 
@@ -185,7 +202,8 @@ class IncomeExpense extends Model
             'month' => $month,
             'year' => $year,
             'average_income' => $income,
-            'average_expesne' => $expesne
+            'average_expesne' => $expense,
+            'average_expense_categories' => $categories
         ];         
         
         return $average_report;
