@@ -48,10 +48,19 @@ class Categories extends Model
 
         if( $this->where('name', $data['name'])->count() > 0 ){
             throw new Exception('Category Already Exist');
+
+        } else {
+            $this->name = strtolower($data['name']);
+            $this->save();
+
+            if(Schema::hasTable('income_expenses')){
+                Schema::table('income_expenses', function (Blueprint $table) {                
+                    if(!Schema::hasColumn('income_expenses', $this->name)){
+                        $table->string($this->name)->after('balance')->nullable();
+                    }
+                });
+            }
         }
-        
-        $this->name = strtolower($data['name']);
-        $this->save();
         
         return $this;
     }
