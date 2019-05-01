@@ -67,6 +67,7 @@ class User extends Authenticatable implements JWTSubject
         $this->email = $data['email'];
         $this->password = bcrypt($data['password']);
         $this->balance = $data['balance'];
+        $this->role = 'user';
         $this->apiToken = str_random(60);
         $this->save();
         

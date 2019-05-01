@@ -41,5 +41,8 @@ Route::get('/report', 'IncomeExpenseController@getReport');
 // Get Average Expense Report
 Route::get('/average_expesne_report', 'IncomeExpenseController@getAverageIncomeExpenseReport');
 
-// Get Average Expense Report
-Route::post('/addCategory', 'CategoriesController@addCategory');
+// Add Category
+Route::post('/addCategory', 'CategoriesController@addCategory')->middleware('isAdmin');
+
+// Add Category
+Route::post('/addSubCategory', 'CategoriesController@addSubCategory')->middleware('isAdmin');
