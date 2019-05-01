@@ -101,6 +101,7 @@ class IncomeExpense extends Model
         return $user;
     }
 
+    // Get Income/Expense Report
     public function getReport($data)
     {
         $validator = Validator::make($data, [
@@ -141,6 +142,7 @@ class IncomeExpense extends Model
         return $report;
     }
 
+    // Get Average Income/Expense Report
     public function getAverageIncomeExpenseReport($data)
     {
         $validator = Validator::make($data, [
