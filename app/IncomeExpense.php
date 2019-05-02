@@ -71,7 +71,8 @@ class IncomeExpense extends Model
     {
         $validator = Validator::make($data, [
             'expense' => 'required|numeric',
-        ]);
+            'categories' => 'array'
+        ]);        
 
         if( $validator->fails() ){
             return response()->json(['error' => $validator->errors()]);
@@ -86,6 +87,20 @@ class IncomeExpense extends Model
 
         $expense = $data['expense'];
         $categories = json_encode($data['categories']);
+        
+        $amount = [];
+        foreach( $data['categories'] as $categories_iters ) {
+            foreach( $categories_iters as $key => $category ){
+                foreach( $category as $sub_category ){
+                    $amount[] = $sub_category['amount'];
+                }
+            }
+        }
+        
+        $total_amount = array_sum($amount);        
+        if( $total_amount != $expense ){
+            throw new Exception('Expense is not matching the total amout spending on different categories.');
+        }
         
         $this->user_id = $userid;
         $this->expense = $expense;
