@@ -46,3 +46,6 @@ Route::post('/addCategory', 'CategoriesController@addCategory')->middleware('isA
 
 // Add Category
 Route::post('/addSubCategory', 'CategoriesController@addSubCategory')->middleware('isAdmin');
+
+// Delete Category
+Route::delete('/deleteCategory/{id}', 'CategoriesController@deleteCategory')->middleware('isAdmin');
