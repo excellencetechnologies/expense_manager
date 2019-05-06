@@ -168,7 +168,8 @@ class Categories extends Model
 
         } else {
 
-            $users_categories = DB::table('users_categories')->where('id', $data['category_id'])->count();
+            $userid = Auth::id();
+            $users_categories = DB::table('users_categories')->where('id', $data['category_id'])->where('user_id', $userid)->count();
             
             if( $users_categories < 1 ){
                 throw new Exception('Category not found');                
@@ -206,5 +207,43 @@ class Categories extends Model
         }
 
         return $response;
+    }
+
+    // Delete Category
+    public function deleteCategory($data)
+    {
+        $validator = Validator::make($data, [
+            'id' => 'required|min:1',
+        ]);
+
+        if( $validator->fails() ){
+            return response()->json(['error' => $validator->errors()]);
+        }
+
+        if( !Auth::check() ){
+            throw new Exception('Invalid Token');
+        }
+
+        if( $data['admin'] ){
+            $category = $this::where('id', $data['id']);
+            if( $category->count() < 1 ){
+                throw new Exception('Category does not exist.');
+            }
+    
+            $category->delete();
+            DB::table('sub_categories')->where('category_id', $data['id'])->delete();
+
+        } else {
+            $userid = Auth::id();
+            $category = DB::table('users_categories')->where('id', $data['id'])->where('user_id', $userid);            
+            if( $category->count() < 1 ){
+                throw new Exception('Category does not exist.');
+            }
+
+            $category->delete();
+            DB::table('users_sub_categories')->where('users_category_id', $data['id'])->delete();
+        }
+
+        return 'Category deleted successfully';
     }
 }
