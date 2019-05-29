@@ -6,6 +6,7 @@ use DB;
 use App\User;
 use Validator;
 use Exception;
+use Carbon\Carbon;
 use App\Categories;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -72,7 +73,7 @@ class IncomeExpense extends Model
         $validator = Validator::make($data, [
             'expense' => 'required|numeric',
             'categories' => 'array'
-        ]);        
+        ]);
 
         if( $validator->fails() ){
             return response()->json(['error' => $validator->errors()]);
@@ -106,10 +107,57 @@ class IncomeExpense extends Model
         $user->balance = $user->balance - $data['expense'];
         $user->save();
 
+        $month = date('m', strtotime($this->created_at));
+        $year = date('Y', strtotime($this->created_at));
+
+        $savings = (array) DB::table('savings')->where([
+                        ['user_id', '=', $userid],
+                        ['month', '=', $month],
+                        ['year', '=', $year],
+                    ])->get()->toArray()[0];
+
+        if( sizeof($savings) > 0 ){
+            $income = $this::whereMonth('created_at', $month)->whereYear('created_at', $year)->where('user_id', $userid)->sum('income');
+            $expense = $this::whereMonth('created_at', $month)->whereYear('created_at', $year)->where('user_id', $userid)->sum('expense');
+            $savings_amount = ($savings['savings_percentage'] / 100) * $income;
+            $savings = $income - $expense; 
+            if( $savings < 0 ){
+                $savings = 0;
+            }
+            if( $savings < $savings_amount ){
+                $user['alert_message'] = "The expense has been lead by savings this month";
+            }
+            $user['savings'] = $savings;
+        }
+
         $user = array_merge($user->toArray(), $this->toArray());
-        $user['categories'] = json_decode($user['categories'], true);
+        $user['categories'] = json_decode($user['categories'], true);        
 
         return $user;
+    }
+
+    public function addSavings($data)
+    {
+        $validator = Validator::make($data, [
+            'savings_percentage' => 'required|numeric|min:1|max:100',
+            'month' => 'required|numeric|min:1|max:12',
+            'year' => 'required|numeric|digits:4'
+        ]);
+
+        if( $validator->fails() ){
+            return response()->json(['error' => $validator->errors()]);
+        }
+
+        if( !Auth::check() ){
+            throw new Exception("Invalid Token");
+        }
+
+        $userid = Auth::id();
+        $check = [ 'user_id' => $userid, 'month' => $data['month'], 'year' => $data['year'] ];
+        $insert = [ 'savings_percentage' => $data['savings_percentage'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now() ];
+        $savings = DB::table('savings')->updateOrInsert($check, $insert);
+
+        return $savings;
     }
 
     // Get Income/Expense Report

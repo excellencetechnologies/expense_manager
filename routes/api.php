@@ -35,6 +35,9 @@ Route::post('/addIncome', 'IncomeExpenseController@addIncome');
 // Add User Expense
 Route::post('/addExpense', 'IncomeExpenseController@addExpense');
 
+// Add Savings Percentage
+Route::post('/addSavings', 'IncomeExpenseController@addSavings');
+
 // Get Expense Report
 Route::get('/report', 'IncomeExpenseController@getReport');
 
