@@ -35,6 +35,9 @@ Route::post('/addIncome', 'IncomeExpenseController@addIncome');
 // Add User Expense
 Route::post('/addExpense', 'IncomeExpenseController@addExpense');
 
+// Add Savings Percentage
+Route::post('/addSavings', 'IncomeExpenseController@addSavings');
+
 // Get Expense Report
 Route::get('/report', 'IncomeExpenseController@getReport');
 
@@ -46,3 +49,6 @@ Route::post('/addCategory', 'CategoriesController@addCategory')->middleware('isA
 
 // Add Category
 Route::post('/addSubCategory', 'CategoriesController@addSubCategory')->middleware('isAdmin');
+
+// Delete Category
+Route::delete('/deleteCategory/{id}', 'CategoriesController@deleteCategory')->middleware('isAdmin');
